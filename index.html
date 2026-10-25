@@ -239,7 +239,8 @@
     padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
   }
   .mail code { font-family: var(--font-mono); font-size: .9375rem; user-select: all; overflow-wrap: anywhere; min-width: 0; }
-  .socials { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .socials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 520px) { .socials { grid-template-columns: 1fr; } }
   .socials .btn { justify-content: space-between; }
   @media (max-width: 860px) { .contact { grid-template-columns: 1fr; gap: 32px; } }
 
@@ -452,6 +453,7 @@
         <div class="socials">
           <a class="btn" href="https://github.com/akshay-sonare" target="_blank" rel="noopener">GitHub <span aria-hidden="true">↗</span></a>
           <a class="btn" href="https://linkedin.com/in/akshay-sonare" target="_blank" rel="noopener">LinkedIn <span aria-hidden="true">↗</span></a>
+          <a class="btn" href="https://www.salesforce.com/trailblazer/asonare95" target="_blank" rel="noopener">Trailblazer <span aria-hidden="true">↗</span></a>
         </div>
       </div>
     </div>
