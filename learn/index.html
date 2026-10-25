@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Learn with Akshay</title>
+<meta name="description" content="Hands-on Salesforce lessons from a working Solutions Architect.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: the portfolio's blueprint sheet, with lessons as a grid of cards. */
+  :root {
+    --ink: #0b1220;
+    --panel: #111a2c;
+    --line: #22304a;
+    --fg: #e8ecf4;
+    --muted: #8d9ab3;
+    --signal: #ff8a3d;
+    --cloud: #4fb3ff;
+    --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --font-body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background-color: var(--ink); color: var(--fg);
+    background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 48px 48px; background-position: -1px -1px; background-attachment: fixed;
+    font-family: var(--font-body); font-size: 1rem; line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1; background: radial-gradient(ellipse at 70% 10%, transparent 0%, var(--ink) 70%); opacity: .82; }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--ink); }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; border-radius: 2px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .label { font-family: var(--font-mono); font-size: .8125rem; letter-spacing: .06em; color: var(--muted); text-transform: uppercase; }
+
+  header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--ink) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 14px; }
+  .brand { font-family: var(--font-display); font-weight: 700; font-stretch: 112%; text-decoration: none; white-space: nowrap; }
+  .brand span { color: var(--signal); }
+  header.top nav a { font-family: var(--font-mono); font-size: .8125rem; color: var(--muted); text-decoration: none; }
+  header.top nav a:hover { color: var(--fg); }
+
+  .hero { padding-block: 72px 48px; }
+  h1, h2 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
+  h1 { font-size: clamp(2.5rem, 7vw, 4.75rem); font-weight: 800; font-stretch: 122%; letter-spacing: -.035em; line-height: .95; }
+  h1 em { font-style: normal; color: var(--signal); }
+  .lede { font-size: 1.25rem; color: var(--muted); max-width: 52ch; margin: 22px 0 0; line-height: 1.5; }
+
+  .lessons { padding-block: 0 88px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 20px; }
+  .lesson {
+    display: grid; gap: 12px; align-content: start; min-width: 0; text-decoration: none;
+    background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--signal); border-radius: 6px; padding: 24px;
+    transition: border-color .2s, transform .2s;
+  }
+  .lesson:hover { border-color: color-mix(in srgb, var(--signal) 60%, var(--line)); border-top-color: var(--signal); transform: translateY(-3px); }
+  .lesson h2 { font-size: 1.5rem; font-weight: 700; font-stretch: 110%; line-height: 1.15; }
+  .lesson p { margin: 0; color: var(--muted); }
+  .lesson .meta { display: flex; gap: 16px; flex-wrap: wrap; }
+  .lesson .go { font-family: var(--font-mono); font-size: .875rem; color: var(--signal); }
+  @media (prefers-reduced-motion: reduce) { .lesson { transition: none; } }
+
+  footer { border-top: 1px solid var(--line); padding-block: 28px; }
+  footer p { margin: 0; color: var(--muted); font-size: .875rem; max-width: 80ch; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../">Akshay Sonare<span>.</span></a>
+    <nav aria-label="Site"><a href="../">← Portfolio</a></nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <span class="label">Learn</span>
+      <h1 style="margin-top:16px">Salesforce, <em>hands on.</em></h1>
+      <p class="lede">Short, interactive lessons from a working Solutions Architect. Read real code, click through it, and check yourself as you go.</p>
+    </div>
+  </section>
+
+  <section class="lessons">
+    <div class="wrap">
+      <div class="grid">
+        <a class="lesson" href="agent-script/">
+          <span class="label">Agentforce · Lesson 1</span>
+          <h2>Agent Script, line by line</h2>
+          <p>Read a complete agent one block at a time, learn the symbols that matter, and finish with a quick quiz.</p>
+          <div class="meta"><span class="label">Beginner</span><span class="label">About 10 min</span></div>
+          <span class="go">Start lesson →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Independent learning resources by Akshay Sonare. Not affiliated with or endorsed by Salesforce. Salesforce and Agentforce are trademarks of Salesforce, Inc.</p>
+  </div>
+</footer>
+
+</body>
+</html>
