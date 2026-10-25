@@ -228,23 +228,6 @@
   .hobbies span { padding: 7px 13px; border-radius: 99px; border: 1px solid var(--line); background: var(--ink); font-size: .9375rem; }
   @media (max-width: 760px) { .personal { grid-template-columns: 1fr; } }
 
-  /* ---------- learn ---------- */
-  .learn-card {
-    display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: center; text-decoration: none;
-    padding: 32px; background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--signal); border-radius: 6px;
-    transition: border-color .2s, transform .2s;
-  }
-  .learn-card:hover { border-color: color-mix(in srgb, var(--signal) 60%, var(--line)); border-left-color: var(--signal); transform: translateY(-2px); }
-  .learn-text { min-width: 0; display: grid; gap: 12px; }
-  .learn-line {
-    margin: 0; font-family: var(--font-display); font-size: var(--step-2); font-weight: 700; font-stretch: 110%;
-    line-height: 1.15; letter-spacing: -.01em; text-wrap: balance; transition: opacity .35s; min-height: 2.3em;
-  }
-  .learn-line.fade { opacity: 0; }
-  .learn-sub { margin: 0; color: var(--muted); max-width: 60ch; }
-  .learn-sub b { color: var(--fg); font-weight: 600; }
-  @media (max-width: 720px) { .learn-card { grid-template-columns: 1fr; gap: 20px; padding: 24px; } .learn-go { justify-self: start; } }
-
   /* ---------- contact ---------- */
   .contact { display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: center; }
   .contact > div { min-width: 0; }
@@ -273,6 +256,7 @@
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
 </style>
 <link rel="stylesheet" href="game.css">
+<link rel="stylesheet" href="levelup.css">
 </head>
 <body>
 <header class="top">
@@ -554,26 +538,6 @@
   });
 </script>
 <script src="game.js" defer></script>
-<script>
-  // Rotate playful lines on the Learn card. Stays on the first line for reduced-motion users.
-  (() => {
-    const el = document.getElementById('learn-line');
-    const lines = [
-      "Bugs dodged. Now learn to write agents that don't make them.",
-      'Your agent called. It wants better instructions.',
-      'There are no governor limits on learning.',
-      'From | to -> in about ten minutes.',
-      '75% code coverage is the minimum. Aim higher.',
-      'The hedgehog finished the lesson. Your turn.',
-    ];
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    let i = 0;
-    setInterval(() => {
-      if (document.hidden) return;
-      el.classList.add('fade');
-      setTimeout(() => { i = (i + 1) % lines.length; el.textContent = lines[i]; el.classList.remove('fade'); }, 350);
-    }, 4000);
-  })();
-</script>
+<script src="levelup.js" defer></script>
 </body>
 </html>

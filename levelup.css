@@ -1,0 +1,17 @@
+/* Level up section: the card linking to the Learn page. Uses the tokens defined in index.html. */
+/* ---------- learn ---------- */
+.learn-card {
+  display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: center; text-decoration: none;
+  padding: 32px; background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--signal); border-radius: 6px;
+  transition: border-color .2s, transform .2s;
+}
+.learn-card:hover { border-color: color-mix(in srgb, var(--signal) 60%, var(--line)); border-left-color: var(--signal); transform: translateY(-2px); }
+.learn-text { min-width: 0; display: grid; gap: 12px; }
+.learn-line {
+  margin: 0; font-family: var(--font-display); font-size: var(--step-2); font-weight: 700; font-stretch: 110%;
+  line-height: 1.15; letter-spacing: -.01em; text-wrap: balance; transition: opacity .35s; min-height: 2.3em;
+}
+.learn-line.fade { opacity: 0; }
+.learn-sub { margin: 0; color: var(--muted); max-width: 60ch; }
+.learn-sub b { color: var(--fg); font-weight: 600; }
+@media (max-width: 720px) { .learn-card { grid-template-columns: 1fr; gap: 20px; padding: 24px; } .learn-go { justify-self: start; } }
