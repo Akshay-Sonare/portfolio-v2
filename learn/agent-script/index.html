@@ -11,153 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=JetBrains+Mono:wght@400;500&display=swap">
-<style>
-  /* Layout: same blueprint sheet as the portfolio. One reading column, widening to a
-     two-pane code explorer, so the script and its explanation sit side by side. */
-  :root {
-    --ink: #0b1220;
-    --panel: #111a2c;
-    --line: #22304a;
-    --fg: #e8ecf4;
-    --muted: #8d9ab3;
-    --signal: #ff8a3d;       /* logic: runs every time */
-    --cloud: #4fb3ff;        /* prompt text: goes to the AI */
-    --ok: #3ddc97;
-    --bad: #ff6b81;
-    --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
-    --font-body: "Archivo", "Helvetica Neue", Arial, sans-serif;
-    --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
-    color-scheme: dark;
-  }
-  * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; } }
-  body {
-    margin: 0; background-color: var(--ink); color: var(--fg);
-    background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
-    background-size: 48px 48px; background-position: -1px -1px; background-attachment: fixed;
-    font-family: var(--font-body); font-size: 1rem; line-height: 1.6; -webkit-font-smoothing: antialiased;
-  }
-  body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1; background: radial-gradient(ellipse at 70% 10%, transparent 0%, var(--ink) 70%); opacity: .82; }
-  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--ink); }
-  a { color: inherit; }
-  :focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; border-radius: 2px; }
-  .wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-  .label { font-family: var(--font-mono); font-size: .8125rem; letter-spacing: .06em; color: var(--muted); text-transform: uppercase; }
-  code, .mono, .code { font-family: var(--font-mono); font-variant-ligatures: none; }
-  p code, li code, td code, .note code { font-size: .875em; padding: 1px 6px; border-radius: 3px; background: var(--panel); border: 1px solid var(--line); white-space: nowrap; }
-
-  header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--ink) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
-  header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 14px; }
-  .brand { font-family: var(--font-display); font-weight: 700; font-stretch: 112%; text-decoration: none; white-space: nowrap; }
-  .brand span { color: var(--signal); }
-  nav.links { display: flex; gap: 22px; flex-wrap: wrap; }
-  nav.links a { font-family: var(--font-mono); font-size: .8125rem; color: var(--muted); text-decoration: none; }
-  nav.links a:hover { color: var(--fg); }
-  @media (max-width: 640px) { nav.links { display: none; } }
-
-  section { padding-block: 72px; }
-  section + section { border-top: 1px solid var(--line); }
-  h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
-  h1 { font-size: clamp(2.5rem, 7vw, 4.75rem); font-weight: 800; font-stretch: 122%; letter-spacing: -.035em; line-height: .95; }
-  h1 em { font-style: normal; color: var(--signal); }
-  h2 { font-size: clamp(1.75rem, 3.6vw, 2.5rem); font-weight: 750; font-stretch: 115%; letter-spacing: -.02em; line-height: 1.05; margin-bottom: 14px; }
-  h3 { font-size: 1.25rem; font-weight: 650; line-height: 1.25; }
-  .lede { font-size: 1.25rem; color: var(--muted); max-width: 52ch; margin: 22px 0 0; line-height: 1.5; }
-  .intro { color: var(--muted); max-width: 62ch; margin: 0 0 36px; }
-  .disclaimer { margin-top: 28px; font-size: .875rem; color: var(--muted); max-width: 62ch; }
-  .meta { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 28px; }
-
-  /* ---------- two lanes ---------- */
-  .lanes { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .lane { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 22px; display: grid; gap: 12px; align-content: start; min-width: 0; }
-  .lane.logic { border-top: 3px solid var(--signal); }
-  .lane.prompt { border-top: 3px solid var(--cloud); }
-  .lane p { margin: 0; color: var(--muted); }
-  .lane pre { margin: 0; }
-  .lane .tag { font-family: var(--font-mono); font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; }
-  .lane.logic .tag { color: var(--signal); }
-  .lane.prompt .tag { color: var(--cloud); }
-  @media (max-width: 760px) { .lanes { grid-template-columns: 1fr; } }
-
-  /* ---------- code ---------- */
-  .code { background: var(--ink); border: 1px solid var(--line); border-radius: 6px; overflow-x: auto; font-family: var(--font-mono); font-size: .8125rem; line-height: 1.7; }
-  .code ol { list-style: none; margin: 0; padding: 12px 0; min-width: max-content; counter-reset: ln; }
-  .code li { counter-increment: ln; display: grid; grid-template-columns: 3.2em 1fr; padding-right: 18px; white-space: pre; border-left: 3px solid transparent; }
-  .code li::before { content: counter(ln); color: var(--line); text-align: right; padding-right: 1.2em; user-select: none; }
-  .explorer .code li { cursor: pointer; opacity: .45; transition: opacity .15s, background .15s; }
-  .explorer .code li.on { opacity: 1; background: color-mix(in srgb, var(--signal) 8%, transparent); border-left-color: var(--signal); }
-  .explorer .code li:hover { opacity: 1; }
-  .lane .code li { white-space: pre-wrap; }
-  .t-com { color: #5d6b86; font-style: italic; }
-  .t-key { color: #c792ea; }
-  .t-ref { color: var(--signal); }
-  .t-str { color: #c3e88d; }
-  .t-sym { color: var(--signal); font-weight: 500; }
-  .t-prompt { color: var(--cloud); }
-  .t-tpl { color: var(--signal); }
-  .t-lit { color: #f78c6c; }
-
-  /* ---------- explorer ---------- */
-  .explorer { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 24px; align-items: start; }
-  .parts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; grid-column: 1 / -1; }
-  .parts button {
-    font-family: var(--font-mono); font-size: .8125rem; padding: 7px 12px; border-radius: 4px; cursor: pointer;
-    background: var(--panel); color: var(--muted); border: 1px solid var(--line);
-  }
-  .parts button:hover { color: var(--fg); border-color: var(--muted); }
-  .parts button[aria-pressed="true"] { color: #1a0d04; background: var(--signal); border-color: var(--signal); }
-  .explain { position: sticky; top: 84px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 22px; display: grid; gap: 12px; min-width: 0; }
-  .explain p { margin: 0; color: var(--muted); }
-  .explain p strong { color: var(--fg); font-weight: 600; }
-  .explain ul { margin: 0; padding-left: 18px; color: var(--muted); display: grid; gap: 6px; }
-  .explain .step { display: flex; justify-content: space-between; gap: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
-  .btn {
-    display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; font-family: var(--font-mono); font-size: .8125rem; font-weight: 500;
-    border: 1px solid var(--line); border-radius: 4px; background: var(--ink); color: var(--fg); cursor: pointer; text-decoration: none;
-  }
-  .btn:hover { border-color: var(--muted); }
-  .btn:disabled { opacity: .4; cursor: default; }
-  @media (max-width: 900px) {
-    .explorer { grid-template-columns: 1fr; }
-    .parts { order: -2; }
-    .explain { position: static; order: -1; }
-  }
-
-  /* ---------- cheat sheet ---------- */
-  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
-  table { width: 100%; border-collapse: collapse; min-width: 560px; }
-  th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
-  tr:last-child td { border-bottom: 0; }
-  th { font-family: var(--font-mono); font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
-  td:first-child { white-space: nowrap; }
-  td:first-child code { color: var(--signal); }
-  td { color: var(--muted); }
-
-  /* ---------- quiz ---------- */
-  .quiz { display: grid; gap: 20px; }
-  .q { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 22px; display: grid; gap: 14px; min-width: 0; }
-  .q .code li { white-space: pre; }
-  .opts { display: grid; gap: 8px; }
-  .opts button {
-    text-align: left; font: inherit; color: var(--fg); background: var(--ink); border: 1px solid var(--line); border-radius: 4px;
-    padding: 11px 14px; cursor: pointer; display: flex; gap: 12px; align-items: baseline;
-  }
-  .opts button:hover:not(:disabled) { border-color: var(--muted); }
-  .opts button:disabled { cursor: default; }
-  .opts button b { font-family: var(--font-mono); font-size: .8125rem; color: var(--muted); font-weight: 500; }
-  .opts button.right { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 10%, var(--ink)); }
-  .opts button.wrong { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 10%, var(--ink)); }
-  .feedback { margin: 0; color: var(--muted); }
-  .feedback.right strong { color: var(--ok); }
-  .feedback.wrong strong { color: var(--bad); }
-  .score { font-family: var(--font-display); font-size: 1.25rem; font-weight: 650; }
-
-  footer { border-top: 1px solid var(--line); padding-block: 32px; }
-  footer .wrap { display: grid; gap: 10px; }
-  footer p { margin: 0; color: var(--muted); font-size: .875rem; max-width: 80ch; }
-  footer ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: .875rem; }
-</style>
+<link rel="stylesheet" href="../lesson.css">
 </head>
 <body>
 
@@ -252,6 +106,14 @@
       <p class="score" id="quiz-score" hidden></p>
     </div>
   </section>
+  <section>
+    <div class="wrap">
+      <nav class="lesson-nav" aria-label="Lessons">
+        <a href="../"><span class="label">← All lessons</span><b>Back to Learn</b></a>
+        <a class="next" href="../apex-actions/"><span class="label">Lesson 2 →</span><b>Apex actions, agent-ready</b></a>
+      </nav>
+    </div>
+  </section>
 </main>
 
 <footer>
@@ -261,46 +123,15 @@
   </div>
 </footer>
 
+<script src="../lesson.js"></script>
 <script>
-  // ---------- tiny Agent Script highlighter ----------
-  const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  function hl(line, isPrompt) {
-    const t = line.trim();
-    if (t.startsWith('#')) return '<span class="t-com">' + esc(line) + '</span>';
-    if (isPrompt) {
-      // prompt text: highlight {!…} templates inside it
-      return '<span class="t-prompt">' + esc(line).replace(/\{!([^}]*)\}/g, '<span class="t-tpl">{!$1}</span>') + '</span>';
-    }
-    const re = /("[^"]*")|(@[\w.]+)|(-&gt;|\.\.\.|\|)|\b(True|False)\b|\b(config|variables|system|messages|start_agent|subagent|reasoning|instructions|actions|inputs|outputs|target|description|if|else|set|with|to|available|when|mutable|string|number|boolean|welcome|error|developer_name|agent_label|agent_type|is_required)\b/g;
-    return esc(line).replace(re, (m, str, ref, sym, lit, key) =>
-      str ? '<span class="t-str">' + m + '</span>' :
-      ref ? '<span class="t-ref">' + m + '</span>' :
-      sym ? '<span class="t-sym">' + m + '</span>' :
-      lit ? '<span class="t-lit">' + m + '</span>' :
-      '<span class="t-key">' + m + '</span>');
-  }
-  // A prompt starts at a line beginning with "|" (or a key ending in ":|") and continues
-  // on following lines that are indented deeper than where it started.
-  function render(el, lines) {
-    let promptIndent = -1;
-    el.innerHTML = '<ol>' + lines.map(([part, text], i) => {
-      const indent = text.length - text.trimStart().length, t = text.trim();
-      let isPrompt = false;
-      if (t.startsWith('|')) { isPrompt = true; promptIndent = indent; }
-      else if (promptIndent >= 0 && t && indent > promptIndent) isPrompt = true;
-      else promptIndent = -1;
-      if (t.endsWith(':|')) promptIndent = indent;
-      return '<li data-part="' + part + '" data-i="' + i + '"><span>' + (hl(text, isPrompt) || ' ') + '</span></li>';
-    }).join('') + '</ol>';
-  }
-
   // ---------- the lane snippets ----------
-  render(document.querySelector('[data-code="lane-logic"]'), [
+  Lesson.render(document.querySelector('[data-code="lane-logic"]'), [
     ['', 'instructions:->'],
     ['', '   if @variables.order_status == "delayed":'],
     ['', '      set @variables.needs_human = True'],
   ]);
-  render(document.querySelector('[data-code="lane-prompt"]'), [
+  Lesson.render(document.querySelector('[data-code="lane-prompt"]'), [
     ['', '| Apologize for the delay.'],
     ['', '  Order {!@variables.order_number} will'],
     ['', '  arrive soon. Offer a human agent.'],
@@ -342,7 +173,7 @@
     ['define',    '      lookup_order:'],
     ['define',    '         description: "Gets the status of an order by its number"'],
     ['define',    '         inputs:'],
-    ['define',    '            order_number: string'],
+    ['define',    '            orderNumber: string'],
     ['define',    '               description: "The customer\'s order number"'],
     ['define',    '               is_required: True'],
     ['define',    '         outputs:'],
@@ -368,7 +199,7 @@
     ['tools',     '            with order_number=...'],
     ['tools',     '         lookup_order: @actions.lookup_order'],
     ['tools',     '            available when @variables.order_number != ""'],
-    ['tools',     '            with order_number=@variables.order_number'],
+    ['tools',     '            with orderNumber=@variables.order_number'],
     ['tools',     '            set @variables.order_status = @outputs.status'],
   ];
 
@@ -388,34 +219,15 @@
     logic: { name: 'reasoning logic', title: 'Logic decides, the AI talks',
       body: '<p>This is the heart of Agent Script. <code>instructions:-&gt;</code> runs <strong>every turn, before the AI sees anything</strong>.</p><ul><li>The <code>if</code> / <code>else</code> checks always run the same way. They choose which prompt text the AI receives.</li><li>Lines starting with <code>|</code> are that prompt text.</li><li><code>{!@variables.order_number}</code> drops in a live value; <code>{!@actions.lookup_order}</code> points the AI at a specific tool.</li></ul><p>The AI never has to "remember" the rules. It only ever sees the instructions that apply right now.</p>' },
     tools: { name: 'tool wiring', title: 'Which tools the AI can use',
-      body: '<p>The <strong>actions</strong> under <code>reasoning</code> are the tools the AI can call in this subagent, and how each is wired.</p><ul><li><code>@utils.setVariables</code> with <code>...</code> lets the AI fill a value from the conversation.</li><li><code>available when</code> hides the lookup until there\'s an order number, so the AI can\'t call it too early.</li><li><code>with order_number=@variables.order_number</code> passes stored state, not a guess.</li><li><code>set @variables.order_status = @outputs.status</code> saves the result for the next turn.</li></ul>' },
+      body: '<p>The <strong>actions</strong> under <code>reasoning</code> are the tools the AI can call in this subagent, and how each is wired.</p><ul><li><code>@utils.setVariables</code> with <code>...</code> lets the AI fill a value from the conversation.</li><li><code>available when</code> hides the lookup until there\'s an order number, so the AI can\'t call it too early.</li><li><code>with orderNumber=@variables.order_number</code> passes stored state, not a guess. The input name matches the Apex variable you\'ll write in lesson 2.</li><li><code>set @variables.order_status = @outputs.status</code> saves the result for the next turn.</li></ul>' },
   };
-  const ORDER = Object.keys(PARTS);
 
-  const scriptEl = document.getElementById('script');
-  const explainEl = document.getElementById('explain');
-  const partsEl = document.getElementById('parts');
-  render(scriptEl, SCRIPT);
-  partsEl.innerHTML = ORDER.map((k) => '<button type="button" data-part="' + k + '" aria-pressed="false">' + PARTS[k].name + '</button>').join('');
-
-  function show(k) {
-    const i = ORDER.indexOf(k), p = PARTS[k];
-    partsEl.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.part === k));
-    scriptEl.querySelectorAll('li').forEach((li) => li.classList.toggle('on', li.dataset.part === k));
-    explainEl.innerHTML =
-      '<span class="label">' + (i + 1) + ' of ' + ORDER.length + ' · ' + p.name + '</span>' +
-      '<h3>' + p.title + '</h3>' + p.body +
-      '<div class="step"><button class="btn" type="button" data-go="-1"' + (i === 0 ? ' disabled' : '') + '>← Previous</button>' +
-      '<button class="btn" type="button" data-go="1"' + (i === ORDER.length - 1 ? ' disabled' : '') + '>Next →</button></div>';
-  }
-  partsEl.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) show(b.dataset.part); });
-  scriptEl.addEventListener('click', (e) => { const li = e.target.closest('li'); if (li && li.dataset.part) show(li.dataset.part); });
-  explainEl.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-go]'); if (!b) return;
-    const cur = partsEl.querySelector('[aria-pressed="true"]').dataset.part;
-    show(ORDER[ORDER.indexOf(cur) + +b.dataset.go]);
+  Lesson.explorer({
+    code: document.getElementById('script'),
+    buttons: document.getElementById('parts'),
+    explain: document.getElementById('explain'),
+    lines: SCRIPT, parts: PARTS,
   });
-  show('config');
 
   // ---------- quiz ----------
   const QUIZ = [
@@ -433,36 +245,8 @@
       right: 0,
       why: 'Indentation defines structure. <code>reasoning</code> must line up with <code>description</code> to belong to the same subagent.' },
   ];
-  const quizEl = document.getElementById('quiz-list');
-  const scoreEl = document.getElementById('quiz-score');
-  let answered = 0, correct = 0;
-  QUIZ.forEach((item, qi) => {
-    const box = document.createElement('div');
-    box.className = 'q';
-    box.innerHTML = '<span class="label">Question ' + (qi + 1) + ' of ' + QUIZ.length + '</span><h3>' + item.q + '</h3>' +
-      (item.code ? '<div class="code"></div>' : '') +
-      '<div class="opts">' + item.opts.map((o, oi) => '<button type="button" data-o="' + oi + '"><b>' + 'ABC'[oi] + '</b><span>' + o + '</span></button>').join('') + '</div>' +
-      '<p class="feedback" hidden></p>';
-    if (item.code) render(box.querySelector('.code'), item.code);
-    box.querySelector('.opts').addEventListener('click', (e) => {
-      const b = e.target.closest('button'); if (!b) return;
-      const pick = +b.dataset.o, ok = pick === item.right;
-      box.querySelectorAll('.opts button').forEach((x, i) => {
-        x.disabled = true;
-        if (i === item.right) x.classList.add('right');
-        else if (i === pick) x.classList.add('wrong');
-      });
-      const fb = box.querySelector('.feedback');
-      fb.hidden = false; fb.className = 'feedback ' + (ok ? 'right' : 'wrong');
-      fb.innerHTML = '<strong>' + (ok ? 'Correct.' : 'Not quite.') + '</strong> ' + item.why;
-      answered++; if (ok) correct++;
-      if (answered === QUIZ.length) {
-        scoreEl.hidden = false;
-        scoreEl.textContent = 'You got ' + correct + ' of ' + QUIZ.length + '. ' + (correct === QUIZ.length ? 'Ready for lesson 2.' : 'Scroll up to the anatomy section and try again.');
-      }
-    });
-    quizEl.appendChild(box);
-  });
+
+  Lesson.quiz(document.getElementById('quiz-list'), document.getElementById('quiz-score'), QUIZ, 'Ready for lesson 2.');
 </script>
 </body>
 </html>

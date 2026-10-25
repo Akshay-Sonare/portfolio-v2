@@ -256,7 +256,7 @@
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
 </style>
 <link rel="stylesheet" href="game.css">
-<link rel="stylesheet" href="levelup.css">
+<link rel="stylesheet" href="learn/levelup.css">
 </head>
 <body>
 <header class="top">
@@ -458,19 +458,8 @@
     </div>
   </section>
 
-  <section id="learn">
-    <div class="wrap">
-      <div class="sec-head"><h2>Level up</h2></div>
-      <a class="learn-card" href="learn/">
-        <div class="learn-text">
-          <span class="label">Learn · hands-on Salesforce lessons</span>
-          <p class="learn-line" id="learn-line" aria-live="polite">Bugs dodged. Now learn to write agents that don't make them.</p>
-          <p class="learn-sub">Start with <b>Agent Script, line by line</b>: read a real agent block by block, then test yourself. About 10 minutes.</p>
-        </div>
-        <span class="btn primary learn-go">Go to Learn <span aria-hidden="true">→</span></span>
-      </a>
-    </div>
-  </section>
+  <!-- Level up: content and styles live in learn/levelup.js and learn/levelup.css -->
+  <section id="learn" aria-label="Level up"></section>
 
   <section id="contact">
     <div class="wrap contact">
@@ -538,6 +527,6 @@
   });
 </script>
 <script src="game.js" defer></script>
-<script src="levelup.js" defer></script>
+<script src="learn/levelup.js" defer></script>
 </body>
 </html>

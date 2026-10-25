@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prompt Templates, Grounded</title>
+<meta name="description" content="How Salesforce prompt templates turn merge fields and Apex data into a grounded prompt, and how an agent calls one.">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../lesson.css">
+<style>
+  .types { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .types div { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+  .types div.pick { border-top: 3px solid var(--signal); }
+  .types p { margin: 0; color: var(--muted); font-size: .9375rem; }
+  @media (max-width: 960px) { .types { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .types { grid-template-columns: 1fr; } }
+
+  .sim { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  .sim-panel { display: grid; gap: 12px; min-width: 0; }
+  .sim-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .sim-controls button { font-family: var(--font-mono); font-size: .8125rem; padding: 7px 12px; border-radius: 4px; cursor: pointer; background: var(--panel); color: var(--muted); border: 1px solid var(--line); }
+  .sim-controls button[aria-pressed="true"] { color: #1a0d04; background: var(--signal); border-color: var(--signal); }
+  .resolved { background: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; font-family: var(--font-mono); font-size: .8125rem; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--fg); }
+  .resolved mark { background: color-mix(in srgb, var(--signal) 18%, transparent); color: var(--fg); border-bottom: 1px solid var(--signal); padding: 0 2px; }
+  .fields { display: grid; gap: 6px; }
+  .fields div { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; font-size: .875rem; padding: 8px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; }
+  .fields code { color: var(--signal); overflow-wrap: anywhere; }
+  .fields span { color: var(--muted); overflow-wrap: anywhere; }
+  .example-tag { font-family: var(--font-mono); font-size: .75rem; color: var(--signal); }
+  @media (max-width: 900px) { .sim { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../../">Akshay Sonare<span>.</span></a>
+    <nav class="links" aria-label="Lesson sections">
+      <a href="../">All lessons</a>
+      <a href="#types">Types</a>
+      <a href="#grounding">Grounding</a>
+      <a href="#provider">Apex data</a>
+      <a href="#agent">From an agent</a>
+      <a href="#quiz">Quiz</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="wrap">
+      <span class="label">Lesson 3 · about 12 minutes</span>
+      <h1 style="margin-top:16px">Prompt templates,<br><em>grounded.</em></h1>
+      <p class="lede">A prompt is only as good as the data in it. See how a template turns merge fields and Apex into a prompt built from your real records, then call it from an agent.</p>
+      <div class="meta">
+        <span class="label">Level · intermediate</span>
+        <span class="label">Builds on · lessons 1 and 2</span>
+      </div>
+      <p class="disclaimer">An independent guide by Akshay Sonare. Not affiliated with or endorsed by Salesforce. Check the official docs before you ship.</p>
+    </div>
+  </section>
+
+  <section id="types">
+    <div class="wrap">
+      <h2>Four kinds of template</h2>
+      <p class="intro">You build prompt templates in Prompt Builder. The type decides where a template can be used and what inputs it gets.</p>
+      <div class="types">
+        <div><h3>Sales Email</h3><p>Drafts an email in the context of a record, such as a contact or opportunity.</p></div>
+        <div><h3>Field Generation</h3><p>Fills in a field on a record page, like a case summary.</p></div>
+        <div><h3>Record Summary</h3><p>Summarizes a record for whoever is looking at it.</p></div>
+        <div class="pick"><h3>Flex</h3><p>Takes the inputs you define. The most flexible type, and the one agents and Flows usually call. This lesson uses it.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="grounding">
+    <div class="wrap">
+      <h2>Watch a template get grounded</h2>
+      <p class="intro"><strong>Grounding</strong> means filling the template with real data before the AI sees it. Each <code>{!…}</code> is a merge field. Pick a customer and watch them resolve.</p>
+      <div class="sim">
+        <div class="sim-panel">
+          <span class="label">Template · Draft_Order_Update</span>
+          <div class="code" id="tpl"></div>
+        </div>
+        <div class="sim-panel">
+          <div class="sim-controls" role="group" aria-label="Pick an example customer" id="sim-pick"></div>
+          <span class="example-tag">Example data, simplified for illustration</span>
+          <div class="fields" id="sim-fields"></div>
+          <span class="label">What the AI receives</span>
+          <div class="resolved" id="sim-out" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="provider">
+    <div class="wrap">
+      <h2>Ground it with Apex</h2>
+      <p class="intro">Merge fields cover simple values. For anything you have to look up, an Apex class can supply the data. The template refers to it as <code>{!$Apex:OrderDetailsProvider.Prompt}</code>.</p>
+      <p class="callout" style="margin-bottom:24px"><strong>Check for your template type:</strong> depending on the type, Salesforce may also expect a <code>CapabilityType</code> value on the <code>@InvocableMethod</code> annotation. Salesforce's own recipe for a Flex template doesn't use one, so this lesson leaves it out. Confirm in the Prompt Builder docs before you ship.</p>
+      <div class="explorer">
+        <div class="parts" role="group" aria-label="Parts of the class" id="parts"></div>
+        <div class="code" id="script" aria-label="OrderDetailsProvider Apex class"></div>
+        <aside class="explain" id="explain" aria-live="polite"></aside>
+      </div>
+    </div>
+  </section>
+
+  <section id="agent">
+    <div class="wrap">
+      <h2>Call it from an agent</h2>
+      <p class="intro">An agent can run the template as an action. Three details make it work.</p>
+      <div class="explorer">
+        <div class="parts" role="group" aria-label="Parts of the action" id="parts2"></div>
+        <div class="code" id="script2" aria-label="Agent Script prompt template action"></div>
+        <aside class="explain" id="explain2" aria-live="polite"></aside>
+      </div>
+    </div>
+  </section>
+
+  <section id="quiz">
+    <div class="wrap">
+      <h2>Check yourself</h2>
+      <p class="intro">Three quick questions.</p>
+      <div class="quiz" id="quiz-list"></div>
+      <p class="score" id="quiz-score" hidden></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <nav class="lesson-nav" aria-label="Lessons">
+        <a href="../apex-actions/"><span class="label">← Lesson 2</span><b>Apex actions, agent-ready</b></a>
+        <a class="next" href="../trust-layer/"><span class="label">Lesson 4 →</span><b>The Trust Layer, step by step</b></a>
+      </nav>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Merge field syntax, the Apex data provider and the agent action follow the prompt template recipe in Salesforce's <a href="https://github.com/trailheadapps/agent-script-recipes" target="_blank" rel="noopener">Agent Script Recipes</a> (Apache 2.0).</p>
+    <p>Salesforce and Agentforce are trademarks of Salesforce, Inc. This page is an independent learning resource. <a href="../">More lessons</a> · <a href="../../">Back to akshaysonare.com</a></p>
+  </div>
+</footer>
+
+<script src="../lesson.js"></script>
+<script>
+  // ---------- grounding simulator ----------
+  const TEMPLATE = [
+    'You work on the support team at {!$Organization.Name}.',
+    'Your name is {!$User.FirstName}.',
+    '',
+    'Write a short, friendly update for the customer about their order.',
+    'Use only the order details below. If the status is Delayed,',
+    'apologize and offer a callback.',
+    '',
+    'Customer email: {!$Input:email}',
+    'Order details: {!$Apex:OrderDetailsProvider.Prompt}',
+  ];
+  Lesson.render(document.getElementById('tpl'), TEMPLATE.map((t) => ['', t]), 'prompt');
+
+  const ORG = 'Northwind Supplies', USER = 'Akshay';
+  const CUSTOMERS = {
+    'priya@example.com': '[{"OrderNumber":"A-1042","Status":"Delayed","EndDate":"2026-11-04"}]',
+    'sam@example.com': '[{"OrderNumber":"A-0977","Status":"Shipped","EndDate":"2026-10-27"}]',
+    'lee@example.com': '[]',
+  };
+  const pickEl = document.getElementById('sim-pick');
+  const fieldsEl = document.getElementById('sim-fields');
+  const outEl = document.getElementById('sim-out');
+  pickEl.innerHTML = Object.keys(CUSTOMERS).map((e) => '<button type="button" data-email="' + e + '" aria-pressed="false">' + e + '</button>').join('');
+
+  function ground(email) {
+    const values = {
+      '$Organization.Name': ORG,
+      '$User.FirstName': USER,
+      '$Input:email': email,
+      '$Apex:OrderDetailsProvider.Prompt': CUSTOMERS[email],
+    };
+    pickEl.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.email === email));
+    fieldsEl.innerHTML = Object.entries(values).map(([k, v]) =>
+      '<div><code>{!' + Lesson.esc(k) + '}</code><span>' + Lesson.esc(v) + '</span></div>').join('');
+    outEl.innerHTML = Lesson.esc(TEMPLATE.join('\n')).replace(/\{!([^}]*)\}/g, (m, k) =>
+      '<mark>' + Lesson.esc(values[k] ?? m) + '</mark>');
+  }
+  pickEl.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) ground(b.dataset.email); });
+  ground('priya@example.com');
+
+  // ---------- Apex data provider ----------
+  Lesson.explorer({
+    code: document.getElementById('script'),
+    buttons: document.getElementById('parts'),
+    explain: document.getElementById('explain'),
+    lang: 'apex',
+    lines: [
+      ['method',   'public with sharing class OrderDetailsProvider {'],
+      ['method',   '    @InvocableMethod('],
+      ['method',   "        label='Get order details'"],
+      ['method',   "        description='Get the open orders for a customer, by email'"],
+      ['method',   '    )'],
+      ['method',   '    public static List<Response> getOrders(List<Request> requests) {'],
+      ['query',    '        String email = requests[0].email;'],
+      ['query',    '        List<Order> orders = ['],
+      ['query',    '            SELECT OrderNumber, Status, EndDate'],
+      ['query',    '            FROM Order'],
+      ['query',    '            WHERE BillToContact.Email = :email'],
+      ['query',    '            WITH USER_MODE'],
+      ['query',    '        ];'],
+      ['query',    ''],
+      ['prompt',   '        Response res = new Response();'],
+      ['prompt',   '        res.Prompt = JSON.serialize(orders);'],
+      ['prompt',   '        return new List<Response>{ res };'],
+      ['prompt',   '    }'],
+      ['prompt',   ''],
+      ['request',  '    // Must match the template\'s inputs'],
+      ['request',  '    public class Request {'],
+      ['request',  "        @InvocableVariable(required=true description='The customer email')"],
+      ['request',  '        public String email;'],
+      ['request',  '    }'],
+      ['request',  ''],
+      ['response', '    public class Response {'],
+      ['response', '        @InvocableVariable'],
+      ['response', '        public String Prompt;'],
+      ['response', '    }'],
+      ['response', '}'],
+    ],
+    parts: {
+      method: { name: '@InvocableMethod', title: 'Same building block as lesson 2',
+        body: '<p>A data provider is an ordinary invocable method. Prompt Builder lists it as a resource you can insert into a template.</p><p>The template calls it with its own inputs, so the class never has to know which template is using it.</p>' },
+      query: { name: 'query', title: 'Fetch only what the prompt needs',
+        body: '<p>Query the few fields the AI actually needs, with <code>WITH USER_MODE</code> so the user\'s permissions apply.</p><p>Everything you return goes into the prompt, so less is usually better: it\'s cheaper, faster and easier for the AI to use well.</p>' },
+      prompt: { name: 'the Prompt value', title: 'Hand back text',
+        body: '<p>The result goes into a field called <code>Prompt</code>, and that text replaces <code>{!$Apex:OrderDetailsProvider.Prompt}</code> in the template.</p><p><code>JSON.serialize</code> is a quick way to turn records into text the AI can read, and it\'s what Salesforce\'s recipe does.</p>' },
+      request: { name: 'inputs', title: 'Match the template',
+        body: '<p>The <code>Request</code> fields must match the template\'s inputs. This template has an <code>email</code> input, so the class has an <code>email</code> field.</p><p>This simple version reads <code>requests[0]</code>, because a template runs for one customer at a time. That mirrors the recipe.</p>' },
+      response: { name: 'output', title: 'One field: Prompt',
+        body: '<p>The response class holds a single <code>Prompt</code> string. It needs no description, because it\'s read by the template, not chosen by the AI.</p>' },
+    },
+  });
+
+  // ---------- agent action ----------
+  Lesson.explorer({
+    code: document.getElementById('script2'),
+    buttons: document.getElementById('parts2'),
+    explain: document.getElementById('explain2'),
+    lines: [
+      ['define', '   actions:'],
+      ['define', '      draft_order_update:'],
+      ['define', '         description: "Writes a short order update for a customer, from their email"'],
+      ['input',  '         inputs:'],
+      ['input',  '            "Input:email": string'],
+      ['input',  '               description: "The customer\'s email address"'],
+      ['input',  '               is_required: True'],
+      ['output', '         outputs:'],
+      ['output', '            promptResponse: string'],
+      ['output', '               description: "The order update the template generated"'],
+      ['output', '               is_used_by_planner: True'],
+      ['output', '               is_displayable: True'],
+      ['target', '         target: "generatePromptResponse://Draft_Order_Update"'],
+    ],
+    parts: {
+      define: { name: 'action', title: 'Just another action',
+        body: '<p>To the agent, a prompt template is a tool like any other. It\'s defined in the subagent\'s <code>actions</code>, with a description the AI uses to decide when to run it.</p>' },
+      input: { name: '"Input:email"', title: 'Inputs use the template\'s names',
+        body: '<p>Template inputs are referred to as <code>Input:</code> plus the input\'s API name, so the name is <code>"Input:email"</code>, in quotes because of the colon.</p><p>In the reasoning actions you\'d pass it with <code>with "Input:email" = ...</code>, letting the AI fill it in from the conversation.</p>' },
+      output: { name: 'promptResponse', title: 'The generated text',
+        body: '<p>The template\'s result always comes back as <code>promptResponse</code>.</p><ul><li><code>is_displayable: True</code> lets the agent show it to the user directly.</li><li><code>is_used_by_planner: True</code> lets the agent read it when deciding what to do next.</li></ul>' },
+      target: { name: 'target', title: 'Point at the template',
+        body: '<p><code>generatePromptResponse://</code> plus the template\'s API name runs it. Compare <code>apex://</code> for Apex and <code>flow://</code> for Flows from the earlier lessons.</p>' },
+    },
+  });
+
+  Lesson.quiz(document.getElementById('quiz-list'), document.getElementById('quiz-score'), [
+    { q: 'What does "grounding" a prompt mean?',
+      opts: ['Shortening it so it costs less', 'Filling it with real data before the AI sees it', 'Translating it into the user\'s language'],
+      right: 1, why: 'Grounding replaces merge fields and data providers with real values, so the AI works from facts instead of guessing.' },
+    { q: 'Your template uses <code>{!$Apex:OrderDetailsProvider.Prompt}</code>. What fills it in?',
+      opts: ['The AI makes up a value', 'The Prompt field returned by the OrderDetailsProvider Apex class', 'A Flow with the same name'],
+      right: 1, why: 'The template runs the invocable method and inserts whatever it returned in its <code>Prompt</code> field.' },
+    { q: 'Which target runs a prompt template from Agent Script?',
+      opts: ['<code>apex://Draft_Order_Update</code>', '<code>flow://Draft_Order_Update</code>', '<code>generatePromptResponse://Draft_Order_Update</code>'],
+      right: 2, why: '<code>generatePromptResponse://</code> runs a template by its API name and returns <code>promptResponse</code>.' },
+  ], 'Ready for lesson 4.');
+</script>
+</body>
+</html>

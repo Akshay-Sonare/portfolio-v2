@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Apex Actions for Agents</title>
+<meta name="description" content="Write an Apex invocable action an Agentforce agent can call: descriptions the AI reads, bulk-safe queries and clean results.">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../lesson.css">
+<style>
+  .flow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; counter-reset: step; }
+  .flow div { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 18px 20px; display: grid; gap: 8px; align-content: start; min-width: 0; counter-increment: step; }
+  .flow div::before { content: counter(step); font-family: var(--font-mono); font-size: .75rem; color: var(--ink); background: var(--signal); width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; }
+  .flow p { margin: 0; color: var(--muted); }
+  @media (max-width: 760px) { .flow { grid-template-columns: 1fr; } }
+  .wire { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  .wire ul { margin: 0; padding-left: 18px; color: var(--muted); display: grid; gap: 8px; }
+  @media (max-width: 900px) { .wire { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../../">Akshay Sonare<span>.</span></a>
+    <nav class="links" aria-label="Lesson sections">
+      <a href="../">All lessons</a>
+      <a href="#how">How agents pick</a>
+      <a href="#anatomy">Anatomy</a>
+      <a href="#wire">Wire it up</a>
+      <a href="#quiz">Quiz</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="wrap">
+      <span class="label">Lesson 2 · about 12 minutes</span>
+      <h1 style="margin-top:16px">Apex actions,<br><em>agent-ready.</em></h1>
+      <p class="lede">Give your agent a real skill. Write one Apex class it can call, with descriptions the AI understands and code that holds up at scale.</p>
+      <div class="meta">
+        <span class="label">Level · intermediate</span>
+        <span class="label">Builds on · lesson 1</span>
+      </div>
+      <p class="disclaimer">An independent guide by Akshay Sonare. Not affiliated with or endorsed by Salesforce. Check the official docs before you ship.</p>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <h2>How an agent picks a tool</h2>
+      <p class="intro">An agent doesn't read your Apex code. It reads the labels and descriptions you attach to it, and decides from those alone whether your action fits what the user asked.</p>
+      <div class="flow">
+        <div><h3>The user asks</h3><p>"Where's my order A-1042?"</p></div>
+        <div><h3>The agent reads descriptions</h3><p>"Returns the current status of an order, given its order number." That matches.</p></div>
+        <div><h3>Your Apex runs</h3><p>The agent passes in the order number, and your code returns the status.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="anatomy">
+    <div class="wrap">
+      <h2>Anatomy of an agent action</h2>
+      <p class="intro">This is the <code>OrderLookupService</code> class that lesson 1's agent calls. Pick a part, or click any line.</p>
+      <div class="explorer">
+        <div class="parts" role="group" aria-label="Parts of the class" id="parts"></div>
+        <div class="code" id="script" aria-label="OrderLookupService Apex class"></div>
+        <aside class="explain" id="explain" aria-live="polite"></aside>
+      </div>
+    </div>
+  </section>
+
+  <section id="wire">
+    <div class="wrap">
+      <h2>Wire it into Agent Script</h2>
+      <p class="intro">In the agent, the action points at your class with an <code>apex://</code> target. The inputs and outputs line up with your Apex variables.</p>
+      <div class="wire">
+        <div class="code" id="wire-code" aria-label="Agent Script action definition"></div>
+        <ul>
+          <li><code>target: "apex://OrderLookupService"</code> names the class. Each class has one invocable method, so that's all the agent needs.</li>
+          <li><code>orderNumber</code> and <code>status</code> use the same names as the <code>@InvocableVariable</code> fields, as Salesforce's own recipes do.</li>
+          <li>The descriptions here can be more specific than the ones in Apex. Use them to explain how this particular agent should use the action.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="makeover">
+    <div class="wrap">
+      <h2>Description makeover</h2>
+      <p class="intro">Descriptions are the part most people rush, and the part the AI depends on. Pick the better one each time.</p>
+      <div class="quiz" id="makeover-list"></div>
+      <p class="score" id="makeover-score" hidden></p>
+    </div>
+  </section>
+
+  <section id="quiz">
+    <div class="wrap">
+      <h2>Check yourself</h2>
+      <p class="intro">Three questions about the class.</p>
+      <div class="quiz" id="quiz-list"></div>
+      <p class="score" id="quiz-score" hidden></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <nav class="lesson-nav" aria-label="Lessons">
+        <a href="../agent-script/"><span class="label">← Lesson 1</span><b>Agent Script, line by line</b></a>
+        <a class="next" href="../prompt-templates/"><span class="label">Lesson 3 →</span><b>Prompt templates, grounded</b></a>
+      </nav>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Patterns follow the Apex classes in Salesforce's <a href="https://github.com/trailheadapps/agent-script-recipes" target="_blank" rel="noopener">Agent Script Recipes</a> (Apache 2.0).</p>
+    <p>Salesforce and Agentforce are trademarks of Salesforce, Inc. This page is an independent learning resource. <a href="../">More lessons</a> · <a href="../../">Back to akshaysonare.com</a></p>
+  </div>
+</footer>
+
+<script src="../lesson.js"></script>
+<script>
+  const SCRIPT = [
+    ['class',    'public with sharing class OrderLookupService {'],
+    ['class',    ''],
+    ['request',  '    public class Request {'],
+    ['request',  '        @InvocableVariable('],
+    ['request',  "            label='Order Number'"],
+    ['request',  "            description='The order number the customer gave, for example A-1042'"],
+    ['request',  '            required=true'],
+    ['request',  '        )'],
+    ['request',  '        public String orderNumber;'],
+    ['request',  '    }'],
+    ['request',  ''],
+    ['response', '    public class Response {'],
+    ['response', '        @InvocableVariable('],
+    ['response', "            label='Status'"],
+    ['response', "            description='Order status, such as Shipped or Delayed, or not found'"],
+    ['response', '        )'],
+    ['response', '        public String status;'],
+    ['response', '    }'],
+    ['response', ''],
+    ['method',   '    @InvocableMethod('],
+    ['method',   "        label='Look Up Order Status'"],
+    ['method',   "        description='Returns the current status of an order, given its order number'"],
+    ['method',   '    )'],
+    ['method',   '    public static List<Response> lookup(List<Request> requests) {'],
+    ['bulk',     '        // Collect every order number first, then query once'],
+    ['bulk',     '        Set<String> numbers = new Set<String>();'],
+    ['bulk',     '        for (Request req : requests) {'],
+    ['bulk',     '            numbers.add(req.orderNumber);'],
+    ['bulk',     '        }'],
+    ['bulk',     ''],
+    ['query',    '        Map<String, String> statusByNumber = new Map<String, String>();'],
+    ['query',    '        for (Order o : ['],
+    ['query',    '            SELECT OrderNumber, Status'],
+    ['query',    '            FROM Order'],
+    ['query',    '            WHERE OrderNumber IN :numbers'],
+    ['query',    '            WITH USER_MODE'],
+    ['query',    '        ]) {'],
+    ['query',    '            statusByNumber.put(o.OrderNumber, o.Status);'],
+    ['query',    '        }'],
+    ['query',    ''],
+    ['results',  '        // One response per request, in the same order'],
+    ['results',  '        List<Response> responses = new List<Response>();'],
+    ['results',  '        for (Request req : requests) {'],
+    ['results',  '            Response res = new Response();'],
+    ['results',  '            res.status = statusByNumber.containsKey(req.orderNumber)'],
+    ['results',  '                ? statusByNumber.get(req.orderNumber)'],
+    ["results",  "                : 'not found';"],
+    ['results',  '            responses.add(res);'],
+    ['results',  '        }'],
+    ['results',  '        return responses;'],
+    ['results',  '    }'],
+    ['class',    '}'],
+  ];
+
+  const PARTS = {
+    class: { name: 'class', title: 'Runs as the user',
+      body: '<p><code>with sharing</code> means the class respects the record sharing rules of whoever is talking to the agent.</p><p>An agent acts on behalf of a real user. If that user can\'t see an order in Salesforce, the agent shouldn\'t be able to read it to them either.</p>' },
+    request: { name: 'inputs', title: 'What the agent sends in',
+      body: '<p>Inputs live in a small inner class. Each field gets <code>@InvocableVariable</code>.</p><ul><li><code>label</code> is what admins see in setup screens.</li><li><code>description</code> is what the AI reads. Say what the value is and give an example.</li><li><code>required=true</code> tells the agent it must have this before calling.</li></ul>' },
+    response: { name: 'outputs', title: 'What the agent gets back',
+      body: '<p>Outputs work the same way. The <code>description</code> tells the agent how to interpret the result.</p><p>Mentioning <strong>not found</strong> here matters: it tells the agent that\'s a normal answer it should explain, not an error.</p>' },
+    method: { name: '@InvocableMethod', title: 'The entry point',
+      body: '<p><code>@InvocableMethod</code> makes the method callable from agents, Flows and prompt templates. A class can have only one.</p><ul><li>The method <code>description</code> is the single most important line for the agent: it decides whether to use your action from this sentence.</li><li>It must be <code>static</code>, take a <code>List</code> and return a <code>List</code>.</li></ul>' },
+    bulk: { name: 'bulk-safe', title: 'Built for many requests',
+      body: '<p>The method receives a <strong>list</strong> of requests, because Salesforce can call it for many at once.</p><p>So collect all the order numbers first, then run <strong>one</strong> query. A query inside the loop would run once per request and hit Salesforce\'s limit of 100 queries per transaction. Yes, that\'s the same "Too many: 101" error from Deploy Dash.</p>' },
+    query: { name: 'query', title: 'Respect permissions',
+      body: '<p><code>WITH USER_MODE</code> runs the query with the user\'s own object and field permissions, as well as their sharing.</p><p>Results go into a <code>Map</code> keyed by order number, so matching them back to each request is quick.</p>' },
+    results: { name: 'results', title: 'One answer per question',
+      body: '<p>Return exactly <strong>one response per request, in the same order</strong>. Salesforce matches them up by position.</p><p>When an order doesn\'t exist, return <code>\'not found\'</code> rather than throwing an exception. The agent can explain a clear answer to the user. An exception just ends in a generic error.</p>' },
+  };
+
+  Lesson.explorer({
+    code: document.getElementById('script'),
+    buttons: document.getElementById('parts'),
+    explain: document.getElementById('explain'),
+    lines: SCRIPT, parts: PARTS, lang: 'apex',
+  });
+
+  Lesson.render(document.getElementById('wire-code'), [
+    ['', 'subagent order_status:'],
+    ['', '   actions:'],
+    ['', '      lookup_order:'],
+    ['', '         description: "Gets the status of an order by its number"'],
+    ['', '         inputs:'],
+    ['', '            orderNumber: string'],
+    ['', '               description: "The customer\'s order number"'],
+    ['', '               is_required: True'],
+    ['', '         outputs:'],
+    ['', '            status: string'],
+    ['', '               description: "Order status, or not found"'],
+    ['', '         target: "apex://OrderLookupService"'],
+  ]);
+
+  Lesson.quiz(document.getElementById('makeover-list'), document.getElementById('makeover-score'), [
+    { q: 'Which method description helps the agent more?',
+      opts: ["<code>description='Order method'</code>", "<code>description='Returns the current status of an order, given its order number'</code>"],
+      right: 1, why: 'It says what the action does and what it needs. "Order method" could mean anything, so the agent has to guess.' },
+    { q: 'Which input description is better?',
+      opts: ["<code>description='The order number the customer gave, for example A-1042'</code>", "<code>description='String input'</code>"],
+      right: 0, why: 'The type is already known. An example shows the AI what format to pull out of the conversation.' },
+    { q: 'Which output description is better?',
+      opts: ["<code>description='Result'</code>", "<code>description='Order status, such as Shipped or Delayed, or not found'</code>"],
+      right: 1, why: 'It lists the possible values, including "not found", so the agent knows how to respond to each one.' },
+  ], 'Your descriptions are agent-ready.');
+
+  Lesson.quiz(document.getElementById('quiz-list'), document.getElementById('quiz-score'), [
+    { q: 'Why does <code>lookup</code> take a <code>List&lt;Request&gt;</code> instead of a single request?',
+      opts: ['Lists are faster than single values in Apex', 'Salesforce can call an invocable method with many requests at once', 'Agents can only send lists'],
+      right: 1, why: 'Invocable methods are bulk by design. Your code has to handle one request or many, and return one response for each.' },
+    { q: 'What does <code>WITH USER_MODE</code> add to the query?',
+      opts: ["It runs the query with the current user's permissions and sharing", 'It makes the query run faster', 'It lets the query skip sharing rules'],
+      right: 0, why: "Without it, the query would see records and fields the user isn't allowed to. With an agent, that could mean telling a customer something they shouldn't see." },
+    { q: "This version won't work as an agent action. What's wrong?",
+      code: [['', '@InvocableMethod(label=\'Look Up Order Status\')'], ['', 'public static Response lookup(Request req) {'], ['', '    // ...'], ['', '}']],
+      lang: 'apex',
+      opts: ['It needs to take a List and return a List', 'The label is too short', 'It must not be static'],
+      right: 0, why: 'Invocable methods take a <code>List</code> and return a <code>List</code>. It\'s also missing a <code>description</code>, which the agent needs to choose it.' },
+  ], 'Ready for lesson 3.');
+</script>
+</body>
+</html>
